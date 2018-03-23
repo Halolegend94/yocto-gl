@@ -6206,6 +6206,9 @@ vec3f trace_path(const scene* scn, const bvh_tree* bvh,
     auto pt = pt_;
     auto wo = wo_;
 
+	if (dot(pt.norm, wo) <= 0)
+		pt.norm = -pt.norm;
+
     // emission
     auto l = eval_emission(pt, wo);
     if (!pt.has_brdf() || lights.empty()) return l;
@@ -6241,6 +6244,8 @@ vec3f trace_path(const scene* scn, const bvh_tree* bvh,
         std::tie(bwi, bdelta) = sample_brdfcos(pt, wo, rbl, rbuv);
         auto bpt = intersect_scene(scn, bvh, make_ray(pt.pos, bwi));
         auto bw = weight_brdfcos(pt, wo, bwi, bdelta);
+		if (dot(bpt.norm, -bwi) <= 0)
+			bpt.norm = -bpt.norm;
         auto bke = eval_emission(bpt, -bwi);
         auto bbc = eval_brdfcos(pt, wo, bwi, bdelta);
         auto bld = bke * bbc * bw;
