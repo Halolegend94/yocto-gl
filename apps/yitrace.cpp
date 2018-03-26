@@ -131,7 +131,7 @@ bool update(app_state* app) {
             ygl::image4f((int)std::round(app->cam->aspect * app->preview_res),
                 app->preview_res);
         auto ppixels = make_trace_pixels(pimg, pparams);
-        ygl::trace_samples(app->scn, app->cam, app->bvh, app->lights, pimg,
+        ygl::trace_samples(app->scn, app->cam, app->, app->lights, pimg,
             ppixels, 1, pparams);
         ygl::resize_image(pimg, app->img, ygl::resize_filter::box);
         ygl::update_texture(app->trace_texture, app->img);

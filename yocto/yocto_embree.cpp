@@ -77,7 +77,7 @@ embr::EmbreeScene embr::scene_from_yocto(ygl::scene *scn) {
 embr::Mesh *embr::triangle_mesh_from_yocto(ygl::shape *triangleShape, EmbreeScene &scene) {
 	// Create a new scene for the mesh (it is like a frame, meh)
 	RTCScene _triangleMesh = rtcDeviceNewScene(scene._device, RTC_SCENE_STATIC, RTC_INTERSECT1);
-	unsigned int geomID = rtcNewTriangleMesh2(_triangleMesh, RTC_GEOMETRY_STATIC, triangleShape->triangles.size(), triangleShape->pos.size(), 1, 0);
+	unsigned int geomID = rtcNewTriangleMesh(_triangleMesh, RTC_GEOMETRY_STATIC, triangleShape->triangles.size(), triangleShape->pos.size(), 1);
 	// Set the vertices
 	Vertex *vertices = (Vertex*) rtcMapBuffer(_triangleMesh, geomID, RTC_VERTEX_BUFFER);
 	for (int i = 0; i < triangleShape->pos.size(); i++) {
@@ -100,7 +100,7 @@ embr::Mesh *embr::line_mesh_from_yocto(ygl::shape *lineShape, EmbreeScene &scene
 	// Create a new scene for the mesh (it is like a frame, meh)
 	RTCScene _lineMesh = rtcDeviceNewScene(scene._device, RTC_SCENE_STATIC, RTC_INTERSECT1);
 	unsigned int geomID = 0;
-	geomID = rtcNewLineSegments2(_lineMesh, RTC_GEOMETRY_STATIC,lineShape->lines.size(), lineShape->pos.size(), 1, geomID);
+	geomID = rtcNewLineSegments(_lineMesh, RTC_GEOMETRY_STATIC,lineShape->lines.size(), lineShape->pos.size(), 1);
 	// Set the vertices
 	Vertex *vertices = (Vertex*)rtcMapBuffer(_lineMesh, geomID, RTC_VERTEX_BUFFER);
 	for (int i = 0; i < lineShape->pos.size(); i++)
@@ -117,7 +117,7 @@ embr::Mesh *embr::line_mesh_from_yocto(ygl::shape *lineShape, EmbreeScene &scene
 
 embr::Instance *embr::create_instance(EmbreeScene &scene, Mesh *mesh, ygl::mat4f &xform, unsigned int instID) {
 	// add an instance of "mesh" into "scene"
-	instID = rtcNewInstance3(scene.mainScene, mesh->scene, 1, instID);
+	instID = rtcNewInstance2(scene.mainScene, mesh->scene, 1);
 	// apply a transformation
 	rtcSetTransform2(scene.mainScene, instID, RTC_MATRIX_COLUMN_MAJOR_ALIGNED16, &(xform.x.x));
 	return new embr::Instance { instID , mesh};
