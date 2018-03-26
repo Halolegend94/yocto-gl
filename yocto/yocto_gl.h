@@ -4897,6 +4897,32 @@ bool overlap_bbox(const bbox3f& bbox1, const bbox3f& bbox2);
 
 }  // namespace ygl
 
+#include <embree2\rtcore.h>
+#include <embree2\rtcore_ray.h>
+
+namespace embr {
+
+	struct Vertex { float x, y, z, a; };
+	struct Triangle { int v0, v1, v2; };
+
+	struct Mesh {
+		RTCScene scene;
+	};
+
+	struct Instance {
+		unsigned int instID;
+		Mesh *msh = nullptr;
+	};
+
+	struct EmbreeScene {
+		RTCScene mainScene;
+		RTCDevice _device;
+		std::map<unsigned int, embr::Instance*> *instances = nullptr;
+		std::vector<embr::Mesh*> *meshes = nullptr;
+	};
+
+}
+
 // -----------------------------------------------------------------------------
 // BVH FOR RAY INTERSECTION AND CLOSEST ELEMENT
 // -----------------------------------------------------------------------------
@@ -6711,28 +6737,28 @@ image<trace_pixel> make_trace_pixels(
 trace_lights make_trace_lights(const scene* scn);
 
 /// Trace the next `nsamples` samples.
-void trace_samples(const scene* scn, const camera* cam, const bvh_tree* bvh,
+void trace_samples(const scene* scn, const camera* cam, const embr::EmbreeScene &escn,
     const trace_lights& lights, image4f& img, image<trace_pixel>& pixels,
     int nsamples, const trace_params& params);
 
 /// Trace the next `nsamples` samples with image filtering.
 void trace_samples_filtered(const scene* scn, const camera* cam,
-    const bvh_tree* bvh, const trace_lights& lights, image4f& img,
+    const embr::EmbreeScene &escn, const trace_lights& lights, image4f& img,
     image<trace_pixel>& pixels, int nsamples, const trace_params& params);
 
 /// Trace the whole image.
 inline image4f trace_image(const scene* scn, const camera* cam,
-    const bvh_tree* bvh, const trace_params& params) {
+    const embr::EmbreeScene &escn, const trace_params& params) {
     auto img = image4f(
         (int)std::round(cam->aspect * params.resolution), params.resolution);
     auto pixels = make_trace_pixels(img, params);
     auto lights = make_trace_lights(scn);
-    trace_samples(scn, cam, bvh, lights, img, pixels, params.nsamples, params);
+    trace_samples(scn, cam, escn, lights, img, pixels, params.nsamples, params);
     return img;
 }
 
 /// Starts an anyncrhounous renderer.
-void trace_async_start(const scene* scn, const camera* cam, const bvh_tree* bvh,
+void trace_async_start(const scene* scn, const camera* cam, const embr::EmbreeScene &escn,
     const trace_lights& lights, image4f& img, image<trace_pixel>& pixels,
     std::vector<std::thread>& threads, bool& stop_flag,
     const trace_params& params);

@@ -27,6 +27,7 @@
 //
 
 #include "../yocto/yocto_gl.h"
+#include "../yocto/yocto_embree.h"
 using namespace std::literals;
 
 // Application state
@@ -34,7 +35,7 @@ struct app_state {
     ygl::scene* scn = nullptr;
     ygl::camera* view = nullptr;
     ygl::camera* cam = nullptr;
-    ygl::bvh_tree* bvh = nullptr;
+    embr::EmbreeScene escn;
     std::string filename;
     std::string imfilename;
     ygl::image4f img;
@@ -50,7 +51,6 @@ struct app_state {
     ~app_state() {
         if (scn) delete scn;
         if (view) delete view;
-        if (bvh) delete bvh;
     }
 };
 
@@ -92,8 +92,8 @@ int main(int argc, char* argv[]) {
     app->cam = app->view;
 
     // build bvh
-    ygl::log_info("building bvh");
-    app->bvh = make_bvh(app->scn);
+    ygl::log_info("building embree scene");
+	embr::scene_from_yocto(app->scn);
 
     // init renderer
     ygl::log_info("initializing tracer");
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
         }
         ygl::log_info(
             "rendering sample {}/{}", cur_sample, app->params.nsamples);
-        trace_samples(app->scn, app->cam, app->bvh, app->lights, app->img,
+        trace_samples(app->scn, app->cam, app->escn, app->lights, app->img,
             app->pixels, app->batch_size, app->params);
     }
     ygl::log_info("rendering done");
