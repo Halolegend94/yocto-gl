@@ -4897,8 +4897,8 @@ bool overlap_bbox(const bbox3f& bbox1, const bbox3f& bbox2);
 
 }  // namespace ygl
 
-#include <embree2\rtcore.h>
-#include <embree2\rtcore_ray.h>
+#include <embree2/rtcore.h>
+#include <embree2/rtcore_ray.h>
 
 namespace embr {
 
@@ -10484,128 +10484,6 @@ inline cmdline_parser make_parser(
 
 }  // namespace ygl
 
-// -----------------------------------------------------------------------------
-// IMPLEMENTATION FOR OPENGL WIDGETS
-// -----------------------------------------------------------------------------
-namespace ygl {
-
-// Label widget.
-template <typename... Args>
-inline void draw_label_widget(gl_window* win, const std::string& lbl,
-    const std::string& fmt, const Args&... args) {
-    auto msg = format(fmt, args...);
-    draw_label_widget(win, lbl, msg);
-}
-// Label widget.
-template <typename T>
-inline void draw_label_widget(
-    gl_window* win, const std::string& lbl, const T& val) {
-    auto sst = std::stringstream();
-    sst << val;
-    return draw_label_widget(win, lbl, sst.str());
-}
-
-// Combo widget.
-template <typename T, typename T1>
-inline bool draw_combo_widget(gl_window* win, const std::string& lbl, T& val,
-    const std::vector<T1>& vals, const std::function<T(const T1&)>& value_func,
-    const std::function<std::string(const T1&)>& label_func) {
-    auto label = std::string();
-    for (auto& v : vals)
-        if (value_func(v) == val) label = label_func(v);
-    if (!draw_combo_widget_begin(win, lbl, label)) return false;
-    auto changed = false;
-    for (auto i = 0; i < vals.size(); i++) {
-        auto selected = val == value_func(vals[i]);
-        if (draw_combo_widget_item(win, label_func(vals[i]), i, selected)) {
-            val = value_func(vals[i]);
-            changed = true;
-        }
-    }
-    draw_combo_widget_end(win);
-    return changed;
-}
-
-// Combo widget.
-inline bool draw_combo_widget(gl_window* win, const std::string& lbl,
-    std::string& val, const std::vector<std::string>& labels) {
-    if (!draw_combo_widget_begin(win, lbl, val)) return false;
-    auto old_val = val;
-    for (auto i = 0; i < labels.size(); i++) {
-        draw_combo_widget_item(win, labels[i], i, val, labels[i]);
-    }
-    draw_combo_widget_end(win);
-    return val != old_val;
-}
-
-// Combo widget.
-template <typename T>
-inline bool draw_combo_widget(gl_window* win, const std::string& lbl, T& val,
-    const std::vector<std::pair<std::string, T>>& labels) {
-    auto label = std::string();
-    for (auto& kv : labels)
-        if (kv.second == val) label = kv.first;
-    if (!draw_combo_widget_begin(win, lbl, label)) return false;
-    auto old_val = val;
-    for (auto i = 0; i < labels.size(); i++) {
-        draw_combo_widget_item(win, labels[i].first, i, val, labels[i].second);
-    }
-    draw_combo_widget_end(win);
-    return val != old_val;
-}
-
-// Combo widget
-template <typename T>
-inline bool draw_combo_widget(gl_window* win, const std::string& lbl, T*& val,
-    const std::vector<T*>& vals, bool extra, T* extra_val) {
-    if (!draw_combo_widget_begin(win, lbl, (val) ? val->name : "<none>"))
-        return false;
-    auto old_val = val;
-    if (extra)
-        draw_combo_widget_item(
-            win, (extra_val) ? extra_val->name : "<none>", -1, val, extra_val);
-    for (auto i = 0; i < vals.size(); i++) {
-        draw_combo_widget_item(win, vals[i]->name, i, val, vals[i]);
-    }
-    draw_combo_widget_end(win);
-    return val != old_val;
-}
-
-// Params visitor
-struct draw_params_visitor {
-    gl_window* win = nullptr;
-    int edited = 0;
-
-    template <typename T>
-    void operator()(T& val, const visit_var& var) {
-        auto lbl = var.name;
-        for (auto& c : lbl)
-            if (c == '_') c = ' ';
-        if (var.type == visit_var_type::noneditable) {
-            draw_label_widget(win, lbl, val);
-        } else {
-            edited += draw_value_widget(win, lbl, val, var.min, var.max,
-                var.type == visit_var_type::color);
-        }
-    }
-
-    template <typename T>
-    void operator()(T* val, const visit_var& var) {}
-};
-
-// Draws a widget that sets params in non-recursive trivial structures.
-// Internally uses visit to implement the view.
-template <typename T>
-inline bool draw_params_widgets(
-    gl_window* win, const std::string& lbl, T& params) {
-    if (!lbl.empty() && !draw_header_widget(win, lbl)) return false;
-    draw_groupid_widget_begin(win, &params);
-    auto visitor = draw_params_visitor{win};
-    visit(params, visitor);
-    draw_groupid_widget_end(win);
-    return visitor.edited;
-}
-
-}  // namespace ygl
+// namespace ygl
 
 #endif

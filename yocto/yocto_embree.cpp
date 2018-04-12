@@ -115,7 +115,7 @@ embr::Mesh *embr::line_mesh_from_yocto(ygl::shape *lineShape, EmbreeScene &scene
 	return new embr::Mesh{ _lineMesh };
 }
 
-embr::Instance *embr::create_instance(EmbreeScene &scene, Mesh *mesh, ygl::mat4f &xform, unsigned int instID) {
+embr::Instance *embr::create_instance(EmbreeScene &scene, Mesh *mesh, ygl::mat4f xform, unsigned int instID) {
 	// add an instance of "mesh" into "scene"
 	instID = rtcNewInstance2(scene.mainScene, mesh->scene, 1);
 	// apply a transformation

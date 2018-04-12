@@ -1,7 +1,8 @@
 // Author: Cristian Di Pietrantonio
 // Implements an interface to Intel Embree from yocto lybrary
-#include <embree2\rtcore.h>
-#include <embree2\rtcore_ray.h>
+#include  <embree2/rtcore.h>
+#include <embree2/rtcore_ray.h>
+
 #include "yocto_gl.h"
 namespace embr {
 
@@ -16,7 +17,7 @@ namespace embr {
 	embr::Mesh *line_mesh_from_yocto(ygl::shape *lineShape, EmbreeScene &scene);
 
 	// Create an instance
-	embr::Instance *create_instance(EmbreeScene &scene, Mesh *mesh, ygl::mat4f &xform, unsigned int instID = -1);
+	embr::Instance *create_instance(EmbreeScene &scene, Mesh *mesh, ygl::mat4f xform, unsigned int instID = -1);
 
 	// convert yocto pos to vertex
 	inline Vertex vertex_from_pos(ygl::vec3f pos) {

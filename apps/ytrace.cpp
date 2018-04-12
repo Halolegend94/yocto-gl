@@ -55,7 +55,7 @@ struct app_state {
 };
 
 int main(int argc, char* argv[]) {
-    // create empty scene
+   
     auto app = new app_state();
 
     // parse command line
@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
 
     // build bvh
     ygl::log_info("building embree scene");
-	embr::scene_from_yocto(app->scn);
+	app->escn = embr::scene_from_yocto(app->scn);
 
     // init renderer
     ygl::log_info("initializing tracer");
